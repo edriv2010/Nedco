@@ -1,50 +1,37 @@
-import React, { Component } from "react"
-import logo from "./logo.svg"
-import "./App.css"
+import React, { Component } from 'react';
+import { Router } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
+import { Chart } from 'react-chartjs-2';
+import { ThemeProvider } from '@material-ui/styles';
+import validate from 'validate.js';
 
-class LambdaDemo extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { loading: false, msg: null }
-  }
+import { chartjs } from './helpers';
+import theme from './theme';
+import 'react-perfect-scrollbar/dist/css/styles.css';
+import './assets/scss/index.scss';
+import validators from './common/validators';
+import Routes from './Routes';
+import { Carousel } from 'react-responsive-carousel';
 
-  handleClick = api => e => {
-    e.preventDefault()
+const browserHistory=createBrowserHistory();
 
-    this.setState({ loading: true })
-    fetch("/.netlify/functions/" + api)
-      .then(response => response.json())
-      .then(json => this.setState({ loading: false, msg: json.msg }))
-  }
+Chart.helpers.extend(Chart.elements.Rectangle.prototype, {
+  draw: chartjs.draw
+});
 
-  render() {
-    const { loading, msg } = this.state
+validate.validators={
+  ...validate.validators,
+  ...validators
+};
 
-    return (
-      <p>
-        <button onClick={this.handleClick("hello")}>{loading ? "Loading..." : "Call Lambda"}</button>
-        <button onClick={this.handleClick("async-dadjoke")}>{loading ? "Loading..." : "Call Async Lambda"}</button>
-        <br />
-        <span>{msg}</span>
-      </p>
-    )
-  }
-}
-
-class App extends Component {
+export default class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <LambdaDemo />
-        </header>
-      </div>
-    )
+      <ThemeProvider theme={theme}>
+        <Router history={browserHistory}>
+          <Routes />
+        </Router>
+      </ThemeProvider>
+    );
   }
 }
-
-export default App
